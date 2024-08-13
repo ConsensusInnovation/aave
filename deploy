@@ -51,15 +51,14 @@ var env = process.argv[2];
 console.log(`deploy to ${env}`);
 
 var domain = 'app-v1.zomma.pro';
-var angularEnv = env;
 if (env === 'staging') {
-  domain = 'zomma.joyso.io';
+  domain = 'aave.joyso.io';
 } else if (env === 'production') {
   domain = 'app-v1.zomma.pro';
 }
 
 run('git pull');
-run(`unset npm_config_prefix && . ~/.nvm/nvm.sh && nvm use && npm install && npm run build -- -c ${angularEnv}`);
+run(`unset npm_config_prefix && . ~/.nvm/nvm.sh && nvm use && yarn && yarn build:static`);
 uploadMaps(domain);
 removeComment();
 run(`cd ansible && ansible-playbook -i environments/${env} web.yml`);

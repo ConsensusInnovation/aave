@@ -3,10 +3,10 @@
   tasks:
     - name: upload files
       synchronize:
-        src: ../dist/aave
+        src: ../out
         dest: "{{ dest }}"
     - name: mv folder
-      command: mv {{ dest }}/aave {{ dest }}/releases/{{ ansible_date_time.epoch }}
+      command: mv {{ dest }}/out {{ dest }}/releases/{{ ansible_date_time.epoch }}
     - name: link to current
       file:
         src: "{{ dest }}/releases/{{ ansible_date_time.epoch }}"
