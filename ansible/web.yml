@@ -1,0 +1,19 @@
+---
+- hosts: web
+  tasks:
+    - name: upload files
+      synchronize:
+        src: ../dist/aave
+        dest: "{{ dest }}"
+    - name: mv folder
+      command: mv {{ dest }}/aave {{ dest }}/releases/{{ ansible_date_time.epoch }}
+    - name: link to current
+      file:
+        src: "{{ dest }}/releases/{{ ansible_date_time.epoch }}"
+        dest: "{{ dest }}/current"
+        state: link
+    - name: List old releases and clean them up
+      shell: "ls -t {{ dest }}/releases | tail -n +5"
+      register: ls_output
+    - file: name={{ dest }}/releases/{{ item }} state=absent
+      with_items: "{{ ls_output.stdout_lines }}"

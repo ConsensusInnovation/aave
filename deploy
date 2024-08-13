@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+var fs = require('fs');
+var glob = require('glob');
+var { exec } = require('shelljs');
+require('dotenv').config();
+
+if (process.argv.length < 3) {
+  console.error('Usage: deploy [environment]');
+  process.exit(1);
+}
+
+function run(cmd) {
+  console.log(cmd);
+  var code = exec(cmd).code;
+  if (code !== 0) {
+    process.exit(code);
+  }
+}
+
+function uploadMaps(domain) {
+  var token = process.env.ROLLBAR_API_TOKEN;
+  var files = glob.sync('dist/*.js.map');
+  files.forEach(function (file) {
+    var result = file.match(/[0-9a-f]{20}/)
+    if (!result) {
+      return false;
+    }
+    var filename = file.replace('dist/', '').replace('.map', '');
+    run(`curl https://api.rollbar.com/api/1/sourcemap \
+      -F access_token=${token} \
+      -F version=v1 \
+      -F minified_url=https://${domain}/${filename} \
+      -F source_map=@dist/${filename}.map
+    `);
+    fs.unlinkSync(file);
+  });
+  return true;
+}
+
+function removeComment() {
+  var files = glob.sync('dist/*.js');
+  files.forEach(function (file) {
+    var js = fs.readFileSync(file, { encoding: 'utf8' });
+    js = js.replace(/^\/\/# sourceMappingURL=.*$/m, '');
+    fs.writeFileSync(file, js);
+  });
+  return true;
+}
+
+var env = process.argv[2];
+console.log(`deploy to ${env}`);
+
+var domain = 'app-v1.zomma.pro';
+var angularEnv = env;
+if (env === 'staging') {
+  domain = 'zomma.joyso.io';
+} else if (env === 'production') {
+  domain = 'app-v1.zomma.pro';
+}
+
+run('git pull');
+run(`unset npm_config_prefix && . ~/.nvm/nvm.sh && nvm use && npm install && npm run build -- -c ${angularEnv}`);
+uploadMaps(domain);
+removeComment();
+run(`cd ansible && ansible-playbook -i environments/${env} web.yml`);
