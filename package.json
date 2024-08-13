@@ -4,7 +4,7 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4000",
     "dev:special": "NODE_OPTIONS='--inspect --max_old_space_size=8000' next dev",
     "build": "next build",
     "build:analyze": "ANALYZE=true yarn build",
@@ -150,7 +150,6 @@
     "Vladimir Konstantinovich Yumatov <vladimir@aave.com>"
   ],
   "lint-staged": {
-    "!(.prettierignore)*.*": "yarn lint:fix",
     "*.svg": "npx svgo --final-newline"
   },
   "nextBundleAnalysis": {

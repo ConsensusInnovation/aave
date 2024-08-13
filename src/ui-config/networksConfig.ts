@@ -450,4 +450,18 @@ export const networkConfigs: Record<string, BaseNetworkConfig> = {
     },
     ratesHistoryApiUrl,
   },
+
+  [1337]: {
+    name: 'Ganache',
+    privateJsonRPCUrl: 'http://localhost:8545',
+    publicJsonRPCUrl: ['http://localhost:8545'],
+    baseUniswapAdapter: '0x0',
+    baseAssetSymbol: 'ETH',
+    wrappedBaseAssetSymbol: 'WETH',
+    baseAssetDecimals: 18,
+    explorerLink: 'https://sepolia.etherscan.io',
+    // usdMarket: true,
+    isTestnet: true,
+    networkLogoPath: '/icons/networks/ethereum.svg',
+  },
 } as const;
